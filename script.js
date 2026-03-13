@@ -97,6 +97,7 @@ const celebrationLayer = document.getElementById("celebration-layer");
 const backdrops = Array.from(document.querySelectorAll(".backdrop"));
 const backdropImages = Array.from(document.querySelectorAll(".backdrop__image"));
 const audio = document.getElementById("our-song");
+const soundToggle = document.getElementById("sound-toggle");
 const audioTracks = {
   story: audio?.dataset.storySrc || audio?.getAttribute("src") || "",
   celebration: audio?.dataset.celebrationSrc || audio?.dataset.storySrc || audio?.getAttribute("src") || ""
@@ -104,7 +105,8 @@ const audioTracks = {
 const audioState = {
   activeTrack: "story",
   autoplayAttempted: false,
-  autoplayBlocked: false
+  autoplayBlocked: false,
+  muted: false
 };
 
 function removeGestureAutoplay() {
@@ -122,6 +124,7 @@ async function playCurrentAudio(options = {}) {
   const { restart = false } = options;
 
   audio.loop = true;
+  audio.muted = audioState.muted;
 
   if (restart) {
     try {
@@ -154,6 +157,7 @@ function setAudioTrack(trackKey) {
   const hasChanged = audio.dataset.track !== trackKey || audio.getAttribute("src") !== source;
 
   audio.loop = true;
+  audio.muted = audioState.muted;
   audioState.activeTrack = trackKey;
 
   if (hasChanged) {
@@ -180,6 +184,31 @@ async function resumeAudioOnFirstGesture() {
 
   audioState.autoplayAttempted = true;
   await activateAudioTrack(audioState.activeTrack);
+}
+
+function updateSoundToggleUi() {
+  if (!soundToggle || !audio) {
+    return;
+  }
+
+  const isMuted = audio.muted;
+  soundToggle.dataset.muted = String(isMuted);
+  soundToggle.setAttribute("aria-pressed", String(isMuted));
+  soundToggle.setAttribute("aria-label", isMuted ? "Turn sound on" : "Turn sound off");
+}
+
+async function toggleSoundMuted() {
+  if (!audio) {
+    return;
+  }
+
+  audioState.muted = !audioState.muted;
+  audio.muted = audioState.muted;
+  updateSoundToggleUi();
+
+  if (!audioState.muted && audio.paused) {
+    await resumeAudioOnFirstGesture();
+  }
 }
 
 function getCelebrationProfile() {
@@ -584,9 +613,12 @@ function setupAudio() {
     return;
   }
 
+  audioState.muted = false;
   audio.volume = 0.55;
+  audio.muted = false;
   audio.loop = true;
   setAudioTrack("story");
+  updateSoundToggleUi();
 
   const attachGestureAutoplay = () => {
     document.addEventListener("pointerdown", resumeAudioOnFirstGesture, { passive: true });
@@ -614,6 +646,7 @@ function setupAudio() {
     audio.currentTime = 0;
     void playCurrentAudio();
   });
+  audio.addEventListener("volumechange", updateSoundToggleUi);
   attachGestureAutoplay();
 
   if (audio.readyState >= 1) {
@@ -634,6 +667,13 @@ function setupEvents() {
 
   storyCard.addEventListener("click", handleCardAdvance);
   storyVisual.addEventListener("click", goBackOnePage);
+
+  if (soundToggle) {
+    soundToggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      void toggleSoundMuted();
+    });
+  }
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") {
