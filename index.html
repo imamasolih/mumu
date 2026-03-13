@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7efe6">
+  <meta
+    name="description"
+    content="A romantic, interactive proposal page for Muchinam built as a premium static site."
+  >
+  <title>For Muchinam</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <div class="ambient ambient--blush" aria-hidden="true"></div>
+    <div class="ambient ambient--gold" aria-hidden="true"></div>
+
+    <div class="backdrop-stack" aria-hidden="true">
+      <figure class="backdrop is-active" data-backdrop="blossoms">
+        <div class="backdrop__fallback"></div>
+        <img
+          src="./assets/images/pink-blossoms-dream.jpg"
+          alt=""
+          class="backdrop__image"
+          fetchpriority="high"
+          decoding="async"
+        >
+      </figure>
+      <figure class="backdrop" data-backdrop="bouquet">
+        <div class="backdrop__fallback"></div>
+        <img
+          src="./assets/images/bouquet-evening.jpg"
+          alt=""
+          class="backdrop__image"
+          loading="lazy"
+          decoding="async"
+        >
+      </figure>
+      <figure class="backdrop" data-backdrop="bokeh">
+        <div class="backdrop__fallback"></div>
+        <img
+          src="./assets/images/warm-bokeh-glow.jpg"
+          alt=""
+          class="backdrop__image"
+          loading="lazy"
+          decoding="async"
+        >
+      </figure>
+    </div>
+
+    <main class="stage-shell">
+      <header class="topbar">
+        <p class="topbar__mark" aria-label="For Muchinam">
+          <span class="topbar__mark-prefix">For</span>
+          <span class="topbar__mark-name">Muchinam</span>
+        </p>
+      </header>
+
+      <section class="story-frame" aria-label="Proposal story">
+        <article class="story-card" id="story-card" tabindex="-1">
+          <div class="story-card__shine" aria-hidden="true"></div>
+
+          <button
+            type="button"
+            class="story-visual"
+            id="story-visual"
+            aria-label="Go to the previous page"
+            disabled
+          >
+            <div class="story-visual__fallback" id="story-visual-fallback">
+              Soft light, soft promise.
+            </div>
+            <img
+              src="./assets/images/pink-blossoms-dream.jpg"
+              alt=""
+              class="story-visual__image"
+              id="story-image"
+              decoding="async"
+            >
+          </button>
+
+          <div class="story-copy" aria-live="polite">
+            <p class="eyebrow" id="story-eyebrow">For you</p>
+            <h1 class="story-title" id="story-title">
+              Some hearts arrive quietly, and then nothing in the world feels ordinary again.
+            </h1>
+            <p class="story-body" id="story-body">
+              That is what loving you has done to my days.
+            </p>
+            <p class="story-note" id="story-note" hidden></p>
+            <p class="story-script" id="story-script" hidden></p>
+          </div>
+
+          <div class="story-actions" id="story-actions"></div>
+
+          <p class="tap-hint" id="tap-hint">
+            Tap the card or use Continue.
+          </p>
+        </article>
+
+        <div class="story-progress">
+          <div class="story-progress__dots" id="progress-dots" aria-hidden="true"></div>
+        </div>
+
+        <noscript>
+          <p class="noscript-note">
+            This page is best with JavaScript enabled so the story and proposal interactions can
+            play properly.
+          </p>
+        </noscript>
+      </section>
+    </main>
+
+    <div class="celebration-layer" id="celebration-layer" aria-hidden="true"></div>
+  </div>
+
+  <audio
+    id="our-song"
+    src="./assets/audio/kiss_the_rain.mp3"
+    data-story-src="./assets/audio/kiss_the_rain.mp3"
+    data-celebration-src="./assets/audio/reminiscent.mp3"
+    preload="metadata"
+    loop
+    autoplay
+    playsinline
+  ></audio>
+
+  <script src="./script.js"></script>
+</body>
+</html>
