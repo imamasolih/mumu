@@ -106,14 +106,16 @@ const audioState = {
   activeTrack: "story",
   autoplayAttempted: false,
   autoplayBlocked: false,
-  muted: false
+  muted: false,
+  userActivated: false,
+  pendingReadyRetry: false
 };
 
 function removeGestureAutoplay() {
-  document.removeEventListener("pointerdown", resumeAudioOnFirstGesture);
-  document.removeEventListener("touchend", resumeAudioOnFirstGesture);
-  document.removeEventListener("click", resumeAudioOnFirstGesture);
-  document.removeEventListener("keydown", resumeAudioOnFirstGesture);
+  document.removeEventListener("pointerdown", resumeAudioOnFirstGesture, true);
+  document.removeEventListener("touchstart", resumeAudioOnFirstGesture, true);
+  document.removeEventListener("click", resumeAudioOnFirstGesture, true);
+  document.removeEventListener("keydown", resumeAudioOnFirstGesture, true);
 }
 
 async function playCurrentAudio(options = {}) {
@@ -177,13 +179,57 @@ async function activateAudioTrack(trackKey, options = {}) {
   return playCurrentAudio({ restart: restart && !hasChanged });
 }
 
+function scheduleAudioReadyRetry() {
+  if (!audio || audioState.pendingReadyRetry) {
+    return;
+  }
+
+  audioState.pendingReadyRetry = true;
+
+  const retryPlayback = async () => {
+    if (!audio) {
+      return;
+    }
+
+    audio.removeEventListener("loadeddata", retryPlayback);
+    audio.removeEventListener("canplay", retryPlayback);
+    audio.removeEventListener("canplaythrough", retryPlayback);
+    audioState.pendingReadyRetry = false;
+
+    if (!audioState.userActivated || !audio.paused) {
+      return;
+    }
+
+    await activateAudioTrack(audioState.activeTrack);
+  };
+
+  audio.addEventListener("loadeddata", retryPlayback);
+  audio.addEventListener("canplay", retryPlayback);
+  audio.addEventListener("canplaythrough", retryPlayback);
+}
+
 async function resumeAudioOnFirstGesture() {
-  if (!audio || !audio.paused) {
+  if (!audio) {
+    return;
+  }
+
+  audioState.userActivated = true;
+
+  if (!audio.paused) {
     return;
   }
 
   audioState.autoplayAttempted = true;
-  await activateAudioTrack(audioState.activeTrack);
+
+  if (audio.readyState === HTMLMediaElement.HAVE_NOTHING) {
+    audio.load();
+  }
+
+  const hasStarted = await activateAudioTrack(audioState.activeTrack);
+
+  if (!hasStarted && audio.paused) {
+    scheduleAudioReadyRetry();
+  }
 }
 
 function updateSoundToggleUi() {
@@ -614,6 +660,8 @@ function setupAudio() {
   }
 
   audioState.muted = false;
+  audioState.userActivated = false;
+  audioState.pendingReadyRetry = false;
   audio.volume = 0.55;
   audio.muted = false;
   audio.loop = true;
@@ -621,10 +669,10 @@ function setupAudio() {
   updateSoundToggleUi();
 
   const attachGestureAutoplay = () => {
-    document.addEventListener("pointerdown", resumeAudioOnFirstGesture, { passive: true });
-    document.addEventListener("touchend", resumeAudioOnFirstGesture, { passive: true });
-    document.addEventListener("click", resumeAudioOnFirstGesture, { passive: true });
-    document.addEventListener("keydown", resumeAudioOnFirstGesture);
+    document.addEventListener("pointerdown", resumeAudioOnFirstGesture, { passive: true, capture: true });
+    document.addEventListener("touchstart", resumeAudioOnFirstGesture, { passive: true, capture: true });
+    document.addEventListener("click", resumeAudioOnFirstGesture, { passive: true, capture: true });
+    document.addEventListener("keydown", resumeAudioOnFirstGesture, true);
   };
 
   const attemptAutoplay = async () => {
