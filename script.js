@@ -77,6 +77,8 @@ const state = {
 };
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const coarsePointer = window.matchMedia("(pointer: coarse)");
+const compactViewport = window.matchMedia("(max-width: 47.99rem)");
 const failedImages = new Set();
 
 const pageShell = document.querySelector(".page-shell");
@@ -107,6 +109,8 @@ const audioState = {
 
 function removeGestureAutoplay() {
   document.removeEventListener("pointerdown", resumeAudioOnFirstGesture);
+  document.removeEventListener("touchend", resumeAudioOnFirstGesture);
+  document.removeEventListener("click", resumeAudioOnFirstGesture);
   document.removeEventListener("keydown", resumeAudioOnFirstGesture);
 }
 
@@ -170,11 +174,29 @@ async function activateAudioTrack(trackKey, options = {}) {
 }
 
 async function resumeAudioOnFirstGesture() {
-  if (!audio || !audioState.autoplayBlocked || !audio.paused) {
+  if (!audio || !audio.paused) {
     return;
   }
 
+  audioState.autoplayAttempted = true;
   await activateAudioTrack(audioState.activeTrack);
+}
+
+function getCelebrationProfile() {
+  const useLiteProfile = coarsePointer.matches || compactViewport.matches;
+
+  return {
+    useLiteProfile,
+    count: useLiteProfile ? 16 : 30,
+    size: useLiteProfile ? 28 : 35,
+    depthSpread: useLiteProfile ? 220 : 400,
+    driftBase: useLiteProfile ? 24 : 42,
+    driftRange: useLiteProfile ? 18 : 34,
+    rotateZMax: useLiteProfile ? 110 : 180,
+    rotateXMax: useLiteProfile ? 0 : 360,
+    rotateYMax: useLiteProfile ? 0 : 360,
+    rotateLiteMax: useLiteProfile ? 120 : 0
+  };
 }
 
 function createProgressDots() {
@@ -371,31 +393,35 @@ function moveToNextStage() {
   }
 }
 
-function createCelebrationParticles(count) {
+function createCelebrationParticles(count = null) {
   celebrationLayer.innerHTML = "";
 
   const fragment = document.createDocumentFragment();
   const width = window.innerWidth;
   const height = window.innerHeight;
-  const size = 35;
+  const profile = getCelebrationProfile();
+  const particleCount = count ?? profile.count;
+  const size = profile.size;
   const edgePadding = Math.max(24, Math.round(width * 0.04));
   const safeWidth = Math.max(size, width - edgePadding * 2 - size);
 
-  for (let index = 0; index < count; index += 1) {
+  for (let index = 0; index < particleCount; index += 1) {
     const particle = document.createElement("span");
     const drift = document.createElement("span");
     const shape = document.createElement("span");
-    const depth = -200 + Math.random() * 400;
+    const depth = -(profile.depthSpread / 2) + Math.random() * profile.depthSpread;
     const fallDuration = 6 + Math.random() * 9;
-    const swayDuration = 4 + Math.random() * 4;
-    const spinDuration = 2 + Math.random() * 6;
+    const swayDuration = profile.useLiteProfile ? 5 + Math.random() * 3 : 4 + Math.random() * 4;
+    const spinDuration = profile.useLiteProfile ? 3.2 + Math.random() * 3.4 : 2 + Math.random() * 6;
     const originX = edgePadding + Math.random() * safeWidth;
-    const preferredDrift = (Math.random() < 0.5 ? -1 : 1) * (42 + Math.random() * 34);
+    const preferredDrift =
+      (Math.random() < 0.5 ? -1 : 1) *
+      (profile.driftBase + Math.random() * profile.driftRange);
     const maxLeftDrift = -(originX - edgePadding);
     const maxRightDrift = width - edgePadding - size - originX;
     const driftX = Math.max(maxLeftDrift, Math.min(maxRightDrift, preferredDrift));
 
-    particle.className = "petal";
+    particle.className = profile.useLiteProfile ? "petal petal--lite" : "petal";
     drift.className = "petal__drift";
     shape.className = "petal__shape";
 
@@ -411,9 +437,10 @@ function createCelebrationParticles(count) {
     particle.style.setProperty("--sway-duration", `${swayDuration.toFixed(2)}s`);
     particle.style.setProperty("--spin-duration", `${spinDuration.toFixed(2)}s`);
     particle.style.setProperty("--spin-delay", "-5s");
-    particle.style.setProperty("--rotate-z-end", `${(Math.random() * 180).toFixed(0)}deg`);
-    particle.style.setProperty("--rotate-x-end", `${(Math.random() * 360).toFixed(0)}deg`);
-    particle.style.setProperty("--rotate-y-end", `${(Math.random() * 360).toFixed(0)}deg`);
+    particle.style.setProperty("--rotate-z-end", `${(Math.random() * profile.rotateZMax).toFixed(0)}deg`);
+    particle.style.setProperty("--rotate-x-end", `${(Math.random() * profile.rotateXMax).toFixed(0)}deg`);
+    particle.style.setProperty("--rotate-y-end", `${(Math.random() * profile.rotateYMax).toFixed(0)}deg`);
+    particle.style.setProperty("--rotate-lite-end", `${(Math.random() * profile.rotateLiteMax).toFixed(0)}deg`);
 
     drift.appendChild(shape);
     particle.appendChild(drift);
@@ -430,7 +457,7 @@ function beginCelebration() {
   void activateAudioTrack("celebration", { restart: true });
 
   if (!reduceMotion.matches) {
-    createCelebrationParticles(30);
+    createCelebrationParticles();
   }
 }
 
@@ -496,6 +523,8 @@ function goBackOnePage() {
 }
 
 function handleAction(action) {
+  void resumeAudioOnFirstGesture();
+
   switch (action) {
     case "next":
       moveToNextStage();
@@ -520,6 +549,7 @@ function handleCardAdvance(event) {
     return;
   }
 
+  void resumeAudioOnFirstGesture();
   moveToNextStage();
 }
 
@@ -560,6 +590,8 @@ function setupAudio() {
 
   const attachGestureAutoplay = () => {
     document.addEventListener("pointerdown", resumeAudioOnFirstGesture, { passive: true });
+    document.addEventListener("touchend", resumeAudioOnFirstGesture, { passive: true });
+    document.addEventListener("click", resumeAudioOnFirstGesture, { passive: true });
     document.addEventListener("keydown", resumeAudioOnFirstGesture);
   };
 
@@ -622,7 +654,7 @@ function setupEvents() {
     if (reduceMotion.matches) {
       celebrationLayer.innerHTML = "";
     } else if (state.celebrating && celebrationLayer.childElementCount === 0) {
-      createCelebrationParticles(22);
+      createCelebrationParticles();
     }
   });
 }

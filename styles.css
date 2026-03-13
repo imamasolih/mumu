@@ -573,6 +573,12 @@ button:focus-visible,
   animation: petalDrop var(--fall-duration, 10s) linear infinite var(--fall-delay, 0s);
 }
 
+.petal--lite,
+.petal--lite .petal__drift,
+.petal--lite .petal__shape {
+  transform-style: flat;
+}
+
 .petal__drift,
 .petal__shape {
   position: absolute;
@@ -588,6 +594,10 @@ button:focus-visible,
   background: url("./assets/images/rose-petal-original.png") center / contain no-repeat;
   transform-origin: center center;
   animation: petalSpin var(--spin-duration, 4s) ease-in-out infinite alternate var(--spin-delay, 0s);
+}
+
+.petal--lite .petal__shape {
+  animation-name: petalSpinLite;
 }
 
 @media (min-width: 48rem) {
@@ -724,5 +734,14 @@ button:focus-visible,
   }
   100% {
     transform: rotateX(var(--rotate-x-end, 180deg)) rotateY(var(--rotate-y-end, 180deg));
+  }
+}
+
+@keyframes petalSpinLite {
+  0% {
+    transform: rotateZ(0deg) scale(0.98);
+  }
+  100% {
+    transform: rotateZ(var(--rotate-lite-end, 90deg)) scale(1.02);
   }
 }
