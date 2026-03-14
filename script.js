@@ -34,24 +34,24 @@ const proposalStage = {
 const noStages = [
   {
     eyebrow: "Then let me ask again",
-    note: "Then let me ask it a little more softly.",
-    body: "Loving you has never made me impatient, only certain.",
+    note: "Maybe that answer needs one gentler question.",
+    body: "So let me ask you again, a little more softly.",
     primaryLabel: "Yes, because it is you",
-    secondaryLabel: "Ask a little sweeter"
+    secondaryLabel: "Ask again"
   },
   {
     eyebrow: "A gentler try",
-    note: "Fair. I had another tender line ready anyway.",
-    body: "I would still choose you on the quiet days, the bright ones, and every day in between.",
-    primaryLabel: "Yes, my love",
-    secondaryLabel: "One more gentle try"
+    note: "I had a feeling your heart might need another sweet little moment.",
+    body: "Good thing I came prepared.",
+    primaryLabel: "Yes, maybe",
+    secondaryLabel: "One more try"
   },
   {
     eyebrow: "There you are",
-    note: "That no was only passing through.",
-    body: "Whatever form your yes takes, I will treasure it with my whole heart.",
+    note: "That no felt a little shy. I think your yes was just taking its time.",
+    body: "And now it has found its way back.",
     primaryLabel: "Yes",
-    secondaryLabel: "Yes, my love",
+    secondaryLabel: "Yes and yes",
     secondaryAccepts: true
   }
 ];
@@ -493,8 +493,8 @@ function renderStory() {
   storyScript.hidden = true;
   storyNote.textContent = "";
   storyScript.textContent = "";
-  tapHint.classList.remove("is-hidden");
-  tapHint.textContent = `Tap the card or use ${activeStory.actionLabel}.`;
+  tapHint.classList.add("is-hidden");
+  tapHint.textContent = "";
 
   updateStoryImage(activeStory.imageKey);
   setBackdrop(activeStory.imageKey);
