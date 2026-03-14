@@ -116,7 +116,8 @@ const audioState = {
   muted: false,
   userActivated: false,
   pendingReadyRetry: false,
-  startAttemptInFlight: false
+  startAttemptInFlight: false,
+  pausedForVisibility: false
 };
 const gateState = {
   active: Boolean(introGate && introPush),
@@ -284,6 +285,30 @@ async function toggleSoundMuted() {
 
   if (!audioState.muted && audio.paused) {
     await resumeAudioOnFirstGesture();
+  }
+}
+
+async function syncAudioWithVisibility() {
+  if (!audio) {
+    return;
+  }
+
+  if (document.hidden) {
+    if (!audio.paused) {
+      audioState.pausedForVisibility = true;
+      audio.pause();
+    }
+    return;
+  }
+
+  if (!audioState.pausedForVisibility) {
+    return;
+  }
+
+  audioState.pausedForVisibility = false;
+
+  if (!audioState.muted && !gateState.active) {
+    await playCurrentAudio();
   }
 }
 
@@ -741,6 +766,7 @@ function setupAudio() {
   audioState.userActivated = false;
   audioState.pendingReadyRetry = false;
   audioState.startAttemptInFlight = false;
+  audioState.pausedForVisibility = false;
   audio.volume = 0.55;
   audio.muted = false;
   audio.loop = true;
@@ -770,6 +796,15 @@ function setupAudio() {
     void playCurrentAudio();
   });
   audio.addEventListener("volumechange", updateSoundToggleUi);
+  document.addEventListener("visibilitychange", () => {
+    void syncAudioWithVisibility();
+  });
+  window.addEventListener("pagehide", () => {
+    if (!audio.paused) {
+      audioState.pausedForVisibility = true;
+      audio.pause();
+    }
+  });
   attachGestureAutoplay();
 
   if (!gateState.active) {
