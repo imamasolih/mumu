@@ -74,10 +74,16 @@
 
     <main class="stage-shell">
       <header class="topbar">
-        <p class="topbar__mark" aria-label="For Muchinam">
+        <button
+          type="button"
+          class="topbar__mark"
+          id="topbar-mark"
+          aria-label="For Muchinam"
+          disabled
+        >
           <span class="topbar__mark-prefix">For</span>
           <span class="topbar__mark-name">Muchinam</span>
-        </p>
+        </button>
         <button
           type="button"
           class="sound-toggle"
@@ -111,7 +117,7 @@
             type="button"
             class="story-visual"
             id="story-visual"
-            aria-label="Go to the previous page"
+            aria-label="Story image"
             disabled
           >
             <div class="story-visual__fallback" id="story-visual-fallback">
@@ -167,7 +173,7 @@
         <button type="button" class="intro-gate__button" id="intro-push">
           Begin
         </button>
-        <p class="intro-gate__hint">And our song will tell the rest...</p>
+        <p class="intro-gate__hint">Our song starts here...</p>
       </div>
     </div>
   </div>

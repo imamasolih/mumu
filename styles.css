@@ -324,6 +324,7 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
 }
 
 .topbar__mark {
+  appearance: none;
   position: relative;
   display: inline-flex;
   align-items: baseline;
@@ -331,6 +332,8 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
   margin: clamp(0.45rem, 1.6vw, 0.95rem) 0 0;
   width: fit-content;
   padding: 0.82rem 1.18rem 0.88rem;
+  border-width: 1px;
+  border-style: solid;
   border: 1px solid rgba(255, 236, 232, 0.58);
   border-radius: 1.2rem;
   background:
@@ -348,9 +351,29 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
   cursor: default;
   user-select: none;
   overflow: hidden;
+  transition:
+    transform calc(220ms * var(--flow-speed)) var(--ease-soft),
+    box-shadow calc(220ms * var(--flow-speed)) var(--ease-soft),
+    filter calc(220ms * var(--flow-speed)) var(--ease-soft);
   animation:
     markFloat calc(6.6s * var(--flow-speed)) var(--ease-soft) infinite alternate,
     markGradientFlow calc(13s * var(--flow-speed)) ease-in-out infinite alternate;
+}
+
+.topbar__mark:not(:disabled) {
+  cursor: pointer;
+}
+
+.topbar__mark:not(:disabled):hover {
+  box-shadow:
+    0 18px 38px rgba(84, 45, 59, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 rgba(116, 75, 89, 0.22);
+  filter: saturate(1.02);
+}
+
+.topbar__mark:not(:disabled):active {
+  transform: translateY(1px) scale(0.995);
 }
 
 .topbar__mark::after {
@@ -379,7 +402,7 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
 
 .topbar__mark-prefix {
   color: rgba(255, 241, 237, 0.84);
-  font-size: 0.84rem;
+  font-size: 1.01rem;
   letter-spacing: 0.08em;
   text-transform: none;
   transform: translateY(-0.3rem);

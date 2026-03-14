@@ -2,32 +2,32 @@
 
 const storyStages = [
   {
-    eyebrow: "Muchi,",
-    title: "",
-    body: "You came into my life gently and nothing has felt quite the same since. Since knowing you, even ordinary days have felt softer, warmer and more alive.",
+    eyebrow: "Muchi",
+    title: "You came into my life gently and changed the whole meaning of it.",
+    body: "Since knowing you, even ordinary days have felt softer, warmer and more alive.",
     imageKey: "opening",
     actionLabel: "Keep going..."
   },
   {
     eyebrow: "A little closer",
-    title: "With you, even simple evenings feel dressed in warm light.",
-    body: "You make calm feel beautiful and joy feel easy.",
+    title: "In your voice, I found a peace I did not know I needed.",
+    body: "There is a softness in you that opened something in me and showed me how deeply I could care about you.",
     imageKey: "closer",
     actionLabel: "Still with me?"
   },
   {
-    eyebrow: "The truest thing",
-    title: "So here is the future my heart keeps reaching for with complete certainty.",
-    body: "My favorite life is the one that keeps beginning with us.",
+    eyebrow: "What became clear",
+    title: "The more I knew you, the more I felt that you were Allah's mercy to me.",
+    body: "Our goals, our values and the way we hoped to live matched so naturally that I could no longer see it as coincidence, but as taqdir.",
     imageKey: "future",
     actionLabel: "One more thing!"
   }
 ];
 
 const proposalStage = {
-  eyebrow: "One last page",
-  title: "Muchi, will you marry me?",
-  body: "However gently I say it, it is still the truest thing I know.",
+  eyebrow: "What became certain",
+  title: "My Ruh al-Ruh, will you marry me?",
+  body: "With you, my heart found peace, certainty and a future it could finally see. I want my life with you.",
   imageKey: "proposal"
 };
 
@@ -57,10 +57,10 @@ const noStages = [
 ];
 
 const celebrationStage = {
-  eyebrow: "Forever, with joy",
-  title: "You just made the future glow.",
-  body: "I will keep loving you with patience, laughter, and the kind of tenderness that feels like home.",
-  note: "Now let us make a beautiful life of it.",
+  eyebrow: "Alhamdulillah!",
+  title: "You just made my heart whole.",
+  body: "By Allah's mercy, you have made this the happiest Yes my heart could ever hold. I want to spend my life loving you with care, sincerity and gratitude.",
+  note: "You gave my heart its answer. Now let us begin the life we were meant to share.",
   imageKey: "celebration"
 };
 
@@ -86,6 +86,7 @@ const failedImages = new Set();
 const pageShell = document.querySelector(".page-shell");
 const storyCard = document.getElementById("story-card");
 const progressDots = document.getElementById("progress-dots");
+const topbarMark = document.getElementById("topbar-mark");
 const storyVisual = document.getElementById("story-visual");
 const storyImage = document.getElementById("story-image");
 const storyEyebrow = document.getElementById("story-eyebrow");
@@ -122,7 +123,7 @@ const gateState = {
 };
 
 function forEachAudioGestureTarget(callback) {
-  [window, document, pageShell, storyCard, storyActions, storyVisual, soundToggle, introPush].forEach((target) => {
+  [window, document, pageShell, storyCard, storyActions, topbarMark, soundToggle, introPush].forEach((target) => {
     if (target && typeof target.addEventListener === "function") {
       callback(target);
     }
@@ -464,16 +465,20 @@ function canGoBackOnePage() {
 }
 
 function updateStoryVisualState() {
-  if (!storyVisual) {
-    return;
+  const canGoBack = canGoBackOnePage();
+
+  if (storyVisual) {
+    storyVisual.disabled = true;
+    storyVisual.setAttribute("aria-label", "Story image");
   }
 
-  const canGoBack = canGoBackOnePage();
-  storyVisual.disabled = !canGoBack;
-  storyVisual.setAttribute(
-    "aria-label",
-    canGoBack ? "Go to the previous page" : "Story image"
-  );
+  if (topbarMark) {
+    topbarMark.disabled = !canGoBack;
+    topbarMark.setAttribute(
+      "aria-label",
+      canGoBack ? "Go to the previous page" : "For Muchinam"
+    );
+  }
 }
 
 function renderStory() {
@@ -830,7 +835,9 @@ function setupEvents() {
   });
 
   storyCard.addEventListener("click", handleCardAdvance);
-  storyVisual.addEventListener("click", goBackOnePage);
+  if (topbarMark) {
+    topbarMark.addEventListener("click", goBackOnePage);
+  }
 
   if (soundToggle) {
     soundToggle.addEventListener("click", (event) => {
