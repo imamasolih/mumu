@@ -5,19 +5,22 @@ const storyStages = [
     eyebrow: "My dear",
     title: "Some hearts arrive quietly, and then nothing in the world feels ordinary again.",
     body: "That is what loving you has done to my days.",
-    imageKey: "opening"
+    imageKey: "opening",
+    actionLabel: "Keep going..."
   },
   {
     eyebrow: "A little closer",
     title: "With you, even simple evenings feel dressed in warm light.",
     body: "You make calm feel beautiful and joy feel easy.",
-    imageKey: "closer"
+    imageKey: "closer",
+    actionLabel: "Still with me?"
   },
   {
     eyebrow: "The truest thing",
     title: "So here is the future my heart keeps reaching for with complete certainty.",
     body: "My favorite life is the one that keeps beginning with us.",
-    imageKey: "future"
+    imageKey: "future",
+    actionLabel: "One more thing!"
   }
 ];
 
@@ -407,7 +410,7 @@ function renderActions() {
   }
 
   if (state.stageIndex < storyStages.length) {
-    storyActions.appendChild(buildButton("Continue", "primary", "next"));
+    storyActions.appendChild(buildButton(storyStages[state.stageIndex].actionLabel, "primary", "next"));
     return;
   }
 
@@ -464,7 +467,7 @@ function renderStory() {
   storyNote.textContent = "";
   storyScript.textContent = "";
   tapHint.classList.remove("is-hidden");
-  tapHint.textContent = "Tap the card or use Continue.";
+  tapHint.textContent = `Tap the card or use ${activeStory.actionLabel}.`;
 
   updateStoryImage(activeStory.imageKey);
   setBackdrop(activeStory.imageKey);
