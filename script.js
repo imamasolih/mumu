@@ -2,9 +2,9 @@
 
 const storyStages = [
   {
-    eyebrow: "My dear",
-    title: "Some hearts arrive quietly, and then nothing in the world feels ordinary again.",
-    body: "That is what loving you has done to my days.",
+    eyebrow: "Muchi,",
+    title: "",
+    body: "You came into my life gently and nothing has felt quite the same since. Since knowing you, even ordinary days have felt softer, warmer and more alive.",
     imageKey: "opening",
     actionLabel: "Keep going..."
   },

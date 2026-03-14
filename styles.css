@@ -380,8 +380,8 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
 .topbar__mark-prefix {
   color: rgba(255, 241, 237, 0.84);
   font-size: 0.84rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-transform: none;
   transform: translateY(-0.3rem);
 }
 
@@ -566,6 +566,10 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
 
 .story-visual.is-fallback .story-visual__fallback {
   opacity: 1;
+}
+
+.story-card[data-mode="proposal"] .story-visual {
+  display: none;
 }
 
 .story-copy {
@@ -837,6 +841,8 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
 
 .petal__shape {
   background: url("./assets/images/rose-petal-original.png") center / contain no-repeat;
+  opacity: 0.84;
+  filter: brightness(0.78) saturate(0.9);
   transform-origin: center center;
   animation: petalSpin var(--spin-duration, 4s) ease-in-out infinite alternate var(--spin-delay, 0s);
 }
@@ -867,6 +873,16 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
   .story-actions,
   .tap-hint {
     grid-column: 2;
+  }
+
+  .story-card[data-mode="proposal"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .story-card[data-mode="proposal"] .story-copy,
+  .story-card[data-mode="proposal"] .story-actions,
+  .story-card[data-mode="proposal"] .tap-hint {
+    grid-column: auto;
   }
 
   .button-row {
