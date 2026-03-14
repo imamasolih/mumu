@@ -96,6 +96,8 @@ const storyScript = document.getElementById("story-script");
 const storyActions = document.getElementById("story-actions");
 const tapHint = document.getElementById("tap-hint");
 const celebrationLayer = document.getElementById("celebration-layer");
+const introGate = document.getElementById("intro-gate");
+const introPush = document.getElementById("intro-push");
 const backdrops = Array.from(document.querySelectorAll(".backdrop"));
 const backdropImages = Array.from(document.querySelectorAll(".backdrop__image"));
 const audio = document.getElementById("our-song");
@@ -113,9 +115,13 @@ const audioState = {
   pendingReadyRetry: false,
   startAttemptInFlight: false
 };
+const gateState = {
+  active: Boolean(introGate && introPush),
+  unlocking: false
+};
 
 function forEachAudioGestureTarget(callback) {
-  [window, document, pageShell, storyCard, storyActions, storyVisual, soundToggle].forEach((target) => {
+  [window, document, pageShell, storyCard, storyActions, storyVisual, soundToggle, introPush].forEach((target) => {
     if (target && typeof target.addEventListener === "function") {
       callback(target);
     }
@@ -276,6 +282,46 @@ async function toggleSoundMuted() {
   if (!audioState.muted && audio.paused) {
     await resumeAudioOnFirstGesture();
   }
+}
+
+function completeExperienceEntry() {
+  gateState.active = false;
+  gateState.unlocking = false;
+
+  if (introPush) {
+    introPush.disabled = false;
+    introPush.removeAttribute("aria-busy");
+  }
+
+  if (introGate) {
+    introGate.setAttribute("aria-hidden", "true");
+  }
+
+  pageShell?.classList.remove("is-gated", "is-unlocking");
+  storyCard?.focus({ preventScroll: true });
+}
+
+async function enterExperience() {
+  if (!gateState.active || gateState.unlocking) {
+    return;
+  }
+
+  gateState.unlocking = true;
+
+  if (introPush) {
+    introPush.disabled = true;
+    introPush.setAttribute("aria-busy", "true");
+  }
+
+  await resumeAudioOnFirstGesture();
+
+  if (reduceMotion.matches) {
+    completeExperienceEntry();
+    return;
+  }
+
+  pageShell?.classList.add("is-unlocking");
+  window.setTimeout(completeExperienceEntry, 620);
 }
 
 function getCelebrationProfile() {
@@ -590,6 +636,10 @@ function resetExperience() {
 }
 
 function goBackOnePage() {
+  if (gateState.active) {
+    return;
+  }
+
   if (!canGoBackOnePage()) {
     return;
   }
@@ -619,6 +669,10 @@ function goBackOnePage() {
 }
 
 function handleAction(action) {
+  if (gateState.active) {
+    return;
+  }
+
   void resumeAudioOnFirstGesture();
 
   switch (action) {
@@ -637,7 +691,7 @@ function handleAction(action) {
 }
 
 function handleCardAdvance(event) {
-  if (state.celebrating || state.stageIndex >= storyStages.length) {
+  if (gateState.active || state.celebrating || state.stageIndex >= storyStages.length) {
     return;
   }
 
@@ -708,12 +762,6 @@ function setupAudio() {
     await activateAudioTrack("story");
   };
 
-  const onReady = () => {
-    void attemptAutoplay();
-  };
-
-  audio.addEventListener("loadedmetadata", onReady, { once: true });
-  audio.addEventListener("canplay", onReady, { once: true });
   audio.addEventListener("ended", () => {
     audio.currentTime = 0;
     void playCurrentAudio();
@@ -721,8 +769,17 @@ function setupAudio() {
   audio.addEventListener("volumechange", updateSoundToggleUi);
   attachGestureAutoplay();
 
-  if (audio.readyState >= 1) {
-    void attemptAutoplay();
+  if (!gateState.active) {
+    const onReady = () => {
+      void attemptAutoplay();
+    };
+
+    audio.addEventListener("loadedmetadata", onReady, { once: true });
+    audio.addEventListener("canplay", onReady, { once: true });
+
+    if (audio.readyState >= 1) {
+      void attemptAutoplay();
+    }
   }
 }
 
@@ -744,6 +801,13 @@ function setupEvents() {
     soundToggle.addEventListener("click", (event) => {
       event.preventDefault();
       void toggleSoundMuted();
+    });
+  }
+
+  if (introPush) {
+    introPush.addEventListener("click", (event) => {
+      event.preventDefault();
+      void enterExperience();
     });
   }
 
@@ -780,6 +844,9 @@ function init() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       pageShell?.classList.add("is-ready");
+      if (gateState.active) {
+        introPush?.focus({ preventScroll: true });
+      }
     });
   });
 }
