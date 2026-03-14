@@ -81,6 +81,34 @@ button:focus-visible,
   isolation: isolate;
 }
 
+html[data-js="true"] .page-shell .ambient,
+html[data-js="true"] .page-shell .topbar,
+html[data-js="true"] .page-shell .story-frame {
+  transition:
+    opacity calc(780ms * var(--flow-speed)) var(--ease-smooth),
+    transform calc(1100ms * var(--flow-speed)) var(--ease-smooth);
+}
+
+html[data-js="true"] .page-shell:not(.is-ready) .ambient {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+html[data-js="true"] .page-shell:not(.is-ready) .topbar {
+  opacity: 0;
+  transform: translate3d(0, 0.8rem, 0);
+}
+
+html[data-js="true"] .page-shell:not(.is-ready) .story-frame {
+  opacity: 0;
+  transform: translate3d(0, 1.35rem, 0) scale(0.985);
+}
+
+html[data-js="true"] .page-shell:not(.is-ready) .backdrop.is-active {
+  opacity: 0;
+  transform: scale(1.14);
+}
+
 .ambient {
   position: absolute;
   border-radius: 999px;
@@ -151,13 +179,15 @@ button:focus-visible,
   transform: scale(1.16);
 }
 
-.backdrop[data-backdrop="bouquet"] .backdrop__image {
+.backdrop[data-backdrop="closer"] .backdrop__image,
+.backdrop[data-backdrop="proposal"] .backdrop__image {
   object-position: center 30%;
   opacity: 0.68;
   transform: scale(1.6);
 }
 
-.backdrop[data-backdrop="bokeh"] .backdrop__image {
+.backdrop[data-backdrop="future"] .backdrop__image,
+.backdrop[data-backdrop="celebration"] .backdrop__image {
   object-position: center 42%;
   opacity: 0.64;
   transform: scale(1.24);
@@ -195,7 +225,7 @@ button:focus-visible,
   align-items: flex-start;
   justify-content: flex-start;
   gap: 0.75rem;
-  margin: 0 auto;
+  margin: clamp(0.45rem, 1.6vw, 0.95rem) auto 0;
   width: min(100%, 68rem);
 }
 
@@ -294,9 +324,26 @@ button:focus-visible,
   -webkit-backdrop-filter: blur(14px);
   cursor: default;
   user-select: none;
+  overflow: hidden;
   animation:
-    markFloat calc(7.6s * var(--flow-speed)) var(--ease-soft) infinite alternate,
-    markGradientFlow calc(16s * var(--flow-speed)) ease-in-out infinite alternate;
+    markFloat calc(6.6s * var(--flow-speed)) var(--ease-soft) infinite alternate,
+    markGradientFlow calc(13s * var(--flow-speed)) ease-in-out infinite alternate;
+}
+
+.topbar__mark::after {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.22) 48%,
+    rgba(255, 255, 255, 0) 66%
+  );
+  transform: translate3d(-135%, 0, 0) rotate(8deg);
+  opacity: 0.85;
+  pointer-events: none;
+  animation: markSheen calc(9s * var(--flow-speed)) ease-in-out infinite;
 }
 
 .topbar__mark-prefix,
@@ -730,6 +777,7 @@ button:focus-visible,
   .topbar {
     flex: 0 0 auto;
     gap: 0.55rem;
+    margin-top: 0.36rem;
   }
 
   .topbar__mark {
@@ -876,10 +924,10 @@ button:focus-visible,
       inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
   to {
-    transform: translate3d(0, 0.18rem, 0);
+    transform: translate3d(0, 0.3rem, 0);
     box-shadow:
-      0 16px 34px rgba(61, 36, 47, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.48);
+      0 18px 38px rgba(61, 36, 47, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.52);
   }
 }
 
@@ -892,6 +940,17 @@ button:focus-visible,
   }
   100% {
     background-position: 12% 76%, 100% 86%, 50% 0%;
+  }
+}
+
+@keyframes markSheen {
+  0%,
+  62%,
+  100% {
+    transform: translate3d(-135%, 0, 0) rotate(8deg);
+  }
+  76% {
+    transform: translate3d(145%, 0, 0) rotate(8deg);
   }
 }
 

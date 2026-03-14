@@ -2,37 +2,37 @@
 
 const storyStages = [
   {
-    eyebrow: "For you",
+    eyebrow: "My dear",
     title: "Some hearts arrive quietly, and then nothing in the world feels ordinary again.",
     body: "That is what loving you has done to my days.",
-    imageKey: "blossoms"
+    imageKey: "opening"
   },
   {
     eyebrow: "A little closer",
     title: "With you, even simple evenings feel dressed in warm light.",
     body: "You make calm feel beautiful and joy feel easy.",
-    imageKey: "bouquet"
+    imageKey: "closer"
   },
   {
     eyebrow: "The truest thing",
     title: "So here is the future my heart keeps reaching for with complete certainty.",
     body: "My favorite life is the one that keeps beginning with us.",
-    imageKey: "bokeh"
+    imageKey: "future"
   }
 ];
 
 const proposalStage = {
   eyebrow: "One last page",
-  title: "Muchinam, will you marry me?",
+  title: "Muchi, will you marry me?",
   body: "However gently I say it, it is still the truest thing I know.",
-  imageKey: "bouquet"
+  imageKey: "proposal"
 };
 
 const noStages = [
   {
     note: "Then let me ask it a little more softly.",
     body: "Because loving you has never made me impatient, only sure.",
-    primaryLabel: "Yes, because it’s you",
+    primaryLabel: "Yes, because it's you",
     secondaryLabel: "Ask a little sweeter"
   },
   {
@@ -45,7 +45,7 @@ const noStages = [
     note: "You make even suspense feel beautiful.",
     body: "The answer already sounds warmer when it is wrapped in your smile.",
     primaryLabel: "Yes, forever",
-    secondaryLabel: "I’m almost there"
+    secondaryLabel: "I'm almost there"
   },
   {
     note: "There you are. Your no only took the scenic route.",
@@ -61,13 +61,15 @@ const celebrationStage = {
   title: "You just made the future glow.",
   body: "I will keep loving you with patience, laughter, and the kind of tenderness that feels like home.",
   note: "Now let us make a beautiful life of it.",
-  imageKey: "bokeh"
+  imageKey: "celebration"
 };
 
 const mediaMap = {
-  blossoms: "./assets/images/pink-blossoms-dream.jpg",
-  bouquet: "./assets/images/bouquet-evening.jpg",
-  bokeh: "./assets/images/warm-bokeh-glow.jpg"
+  opening: "./assets/images/page-01-opening.jpg",
+  closer: "./assets/images/page-02-evening.jpg",
+  future: "./assets/images/page-03-future.jpg",
+  proposal: "./assets/images/page-04-proposal.jpg",
+  celebration: "./assets/images/page-05-celebration.jpg"
 };
 
 const state = {
@@ -775,6 +777,11 @@ function init() {
   setupAudio();
   setupEvents();
   render();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      pageShell?.classList.add("is-ready");
+    });
+  });
 }
 
 init();
