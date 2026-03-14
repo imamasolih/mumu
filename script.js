@@ -108,14 +108,25 @@ const audioState = {
   autoplayBlocked: false,
   muted: false,
   userActivated: false,
-  pendingReadyRetry: false
+  pendingReadyRetry: false,
+  startAttemptInFlight: false
 };
 
+function forEachAudioGestureTarget(callback) {
+  [window, document, pageShell, storyCard, storyActions, storyVisual, soundToggle].forEach((target) => {
+    if (target && typeof target.addEventListener === "function") {
+      callback(target);
+    }
+  });
+}
+
 function removeGestureAutoplay() {
-  document.removeEventListener("pointerdown", resumeAudioOnFirstGesture, true);
-  document.removeEventListener("touchstart", resumeAudioOnFirstGesture, true);
-  document.removeEventListener("click", resumeAudioOnFirstGesture, true);
-  document.removeEventListener("keydown", resumeAudioOnFirstGesture, true);
+  forEachAudioGestureTarget((target) => {
+    target.removeEventListener("pointerdown", resumeAudioOnFirstGesture, true);
+    target.removeEventListener("touchstart", resumeAudioOnFirstGesture, true);
+    target.removeEventListener("click", resumeAudioOnFirstGesture, true);
+    target.removeEventListener("keydown", resumeAudioOnFirstGesture, true);
+  });
 }
 
 async function playCurrentAudio(options = {}) {
@@ -219,16 +230,24 @@ async function resumeAudioOnFirstGesture() {
     return;
   }
 
-  audioState.autoplayAttempted = true;
-
-  if (audio.readyState === HTMLMediaElement.HAVE_NOTHING) {
-    audio.load();
+  if (audioState.startAttemptInFlight) {
+    return;
   }
 
-  const hasStarted = await activateAudioTrack(audioState.activeTrack);
+  audioState.autoplayAttempted = true;
+  audioState.startAttemptInFlight = true;
 
-  if (!hasStarted && audio.paused) {
-    scheduleAudioReadyRetry();
+  try {
+    const shouldSwitchTrack = audio.dataset.track !== audioState.activeTrack;
+    const hasStarted = shouldSwitchTrack
+      ? await activateAudioTrack(audioState.activeTrack)
+      : await playCurrentAudio();
+
+    if (!hasStarted && audio.paused) {
+      scheduleAudioReadyRetry();
+    }
+  } finally {
+    audioState.startAttemptInFlight = false;
   }
 }
 
@@ -662,6 +681,7 @@ function setupAudio() {
   audioState.muted = false;
   audioState.userActivated = false;
   audioState.pendingReadyRetry = false;
+  audioState.startAttemptInFlight = false;
   audio.volume = 0.55;
   audio.muted = false;
   audio.loop = true;
@@ -669,10 +689,12 @@ function setupAudio() {
   updateSoundToggleUi();
 
   const attachGestureAutoplay = () => {
-    document.addEventListener("pointerdown", resumeAudioOnFirstGesture, { passive: true, capture: true });
-    document.addEventListener("touchstart", resumeAudioOnFirstGesture, { passive: true, capture: true });
-    document.addEventListener("click", resumeAudioOnFirstGesture, { passive: true, capture: true });
-    document.addEventListener("keydown", resumeAudioOnFirstGesture, true);
+    forEachAudioGestureTarget((target) => {
+      target.addEventListener("pointerdown", resumeAudioOnFirstGesture, { passive: true, capture: true });
+      target.addEventListener("touchstart", resumeAudioOnFirstGesture, { passive: true, capture: true });
+      target.addEventListener("click", resumeAudioOnFirstGesture, { passive: true, capture: true });
+      target.addEventListener("keydown", resumeAudioOnFirstGesture, true);
+    });
   };
 
   const attemptAutoplay = async () => {
