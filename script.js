@@ -33,26 +33,23 @@ const proposalStage = {
 
 const noStages = [
   {
+    eyebrow: "Then let me ask again",
     note: "Then let me ask it a little more softly.",
-    body: "Because loving you has never made me impatient, only sure.",
-    primaryLabel: "Yes, because it's you",
+    body: "Loving you has never made me impatient, only certain.",
+    primaryLabel: "Yes, because it is you",
     secondaryLabel: "Ask a little sweeter"
   },
   {
+    eyebrow: "A gentler try",
     note: "Fair. I had another tender line ready anyway.",
-    body: "I would still choose you on the quiet days, the bright ones, and every in-between.",
+    body: "I would still choose you on the quiet days, the bright ones, and every day in between.",
     primaryLabel: "Yes, my love",
     secondaryLabel: "One more gentle try"
   },
   {
-    note: "You make even suspense feel beautiful.",
-    body: "The answer already sounds warmer when it is wrapped in your smile.",
-    primaryLabel: "Yes, forever",
-    secondaryLabel: "I'm almost there"
-  },
-  {
-    note: "There you are. Your no only took the scenic route.",
-    body: "Whatever version of yes you choose, I will treasure it.",
+    eyebrow: "There you are",
+    note: "That no was only passing through.",
+    body: "Whatever form your yes takes, I will treasure it with my whole heart.",
     primaryLabel: "Yes",
     secondaryLabel: "Yes, my love",
     secondaryAccepts: true
@@ -504,7 +501,7 @@ function renderProposal() {
 
   storyCard.dataset.mode = "proposal";
   storyCard.dataset.noStage = String(state.noStage);
-  storyEyebrow.textContent = proposalStage.eyebrow;
+  storyEyebrow.textContent = activeNoStage ? activeNoStage.eyebrow : proposalStage.eyebrow;
   storyTitle.textContent = proposalStage.title;
   storyBody.textContent = activeNoStage ? activeNoStage.body : proposalStage.body;
   storyNote.hidden = !activeNoStage;

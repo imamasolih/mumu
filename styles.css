@@ -474,8 +474,7 @@ html[data-js="true"] .page-shell.is-unlocking .intro-gate__panel {
   transform: translateY(-2px);
 }
 
-.story-card[data-no-stage="3"],
-.story-card[data-no-stage="4"] {
+.story-card[data-no-stage="3"] {
   border-color: rgba(196, 149, 159, 0.88);
   box-shadow:
     0 28px 100px rgba(64, 31, 43, 0.22),
